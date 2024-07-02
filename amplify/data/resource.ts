@@ -13,7 +13,33 @@ const schema = a.schema({
     .model({
       content: a.string(),
     })
-    .authorization((allow) => [allow.owner()]),
+    .authorization(allow => [allow.owner()]),
+  
+  Venue: a.model ({
+    venueId: a.id(),
+    name: a.string(),
+    matches: a.hasMany("Match","matchId"),
+    owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+
+  Team: a.model ({
+    teamId: a.id(),
+    name: a.string(),
+    wins: a.integer(),
+    losses: a.integer(),
+    match: a.hasMany("Match","matchId"),
+    owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+
+  Match: a.model ({
+    matchId: a.id(),
+    venue: a.belongsTo("Venue", "matchId"),
+    team1: a.belongsTo("Team", "matchId"),
+    team2: a.belongsTo("Team", "matchId"),
+    team1Score: a.integer(),
+    team2Score: a.integer(),
+    owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -22,9 +48,9 @@ export const data = defineData({
   schema,
   authorizationModes: {
     //defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
+    //API Key is used for a.allow.public() rules
     //apiKeyAuthorizationMode: {
-    //  expiresInDays: 30,
+     //expiresInDays: 30,
     //},
     defaultAuthorizationMode: 'userPool',
   },

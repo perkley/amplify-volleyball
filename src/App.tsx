@@ -4,55 +4,40 @@ import { generateClient } from "aws-amplify/data";
 
 import { Authenticator } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css'
+//import { fetchAuthSession } from 'aws-amplify/auth';
 
 import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 
 const client = generateClient<Schema>();
+//const session = await fetchAuthSession();
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+  const [venues, setVenues] = useState<Array<Schema["Venue"]["type"]>>([]);
   const [connectionState, setConnectionState] = useState<string>('Connecting'); // Initial state
+
+  //console.log("id token", session.tokens?.idToken)
+  //console.log("access token", session.tokens?.accessToken)
 
   useEffect(() => {
     client.models.Todo.observeQuery().subscribe({
-      next: (data) => {console.log("observe", data); setTodos([...data.items]);},
+      next: (data) => {console.log("observe", data); setVenues([...data.items]);},
     });
 
-    // Subscribe to creation of Todo
-    const createSub = client.models.Todo.onCreate().subscribe({
-      next: (data) => console.log("create", data),
-      error: (error) => console.warn(error),
-    });
-
-    // Subscribe to update of Todo
-    const updateSub = client.models.Todo.onUpdate().subscribe({
-      next: (data) => console.log("update", data),
-      error: (error) => console.warn(error),
-    });
-
-    // Subscribe to deletion of Todo
-    // const deleteSub = client.models.Todo.onDelete().subscribe({
-    //   next: (data) => console.log("delete", data),
-    //   error: (error) => console.warn(error),
-    // });
-
-// Listen for connection state changes
-const unsubscribeFromHub = Hub.listen('api', (data: any) => {
-  const { payload } = data;
-  if (payload.event === CONNECTION_STATE_CHANGE) {
-    const newConnectionState = payload.data.connectionState as string;
-    setConnectionState(newConnectionState);
-  }
+    // Listen for connection state changes
+    const unsubscribeFromHub = Hub.listen('api', (data: any) => {
+      const { payload } = data;
+      if (payload.event === CONNECTION_STATE_CHANGE) {
+        const newConnectionState = payload.data.connectionState as string;
+        setConnectionState(newConnectionState);
+      }
   
-});
+  });
+
 
 // Cleanup function to unsubscribe when the component unmounts
 return () => {
-  //unsubscribeFromSubscription.unsubscribe();
-  createSub.unsubscribe;
-  updateSub.unsubscribe;
-  //deleteSub.unsubscribe;
+
   unsubscribeFromHub();
 };
 
@@ -60,13 +45,17 @@ return () => {
 
 
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+  function createVenue() {
+    client.models.Venue.create(
+      { name: window.prompt("Venue Name") }
+  );
   }
 
     
-  function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
+  function deleteVenue(id: string) {
+    client.models.Venue.delete(
+      { id },
+      { authMode: 'userPool'})
   }
 
   return (
@@ -74,11 +63,12 @@ return () => {
     <Authenticator>
       {({ signOut, user }) => (
     <main>
-      <h1>{user?.signInDetails?.loginId}'s todos</h1>
-      <button onClick={createTodo}>+ new</button>
+      <h1>{user?.signInDetails?.loginId}'s Venues</h1>
+      
+      <button onClick={createVenue}>+ new</button>
       <ul>
-        {todos.map((todo) => (
-          <li onClick={() => deleteTodo(todo.id)} key={todo.id}>{todo.content}</li>
+        {venues.map((venue) => (
+          <li onClick={() => deleteVenue(venue.id)} key={venue.id}>{venue.name}</li>
         ))}
       </ul>
       <div>
