@@ -6,22 +6,25 @@ import { Authenticator } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css'
 //import { fetchAuthSession } from 'aws-amplify/auth';
 
-import { CONNECTION_STATE_CHANGE, ConnectionState } from 'aws-amplify/data';
+import { CONNECTION_STATE_CHANGE } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 
 const client = generateClient<Schema>();
+type Venue = Schema['Venue']['type']
 //const session = await fetchAuthSession();
 
 function App() {
-  const [venues, setVenues] = useState<Array<Schema["Venue"]["type"]>>([]);
+  const [venues, setVenues] = useState<Venue[]>([]);
   const [connectionState, setConnectionState] = useState<string>('Connecting'); // Initial state
 
   //console.log("id token", session.tokens?.idToken)
   //console.log("access token", session.tokens?.accessToken)
 
   useEffect(() => {
-    client.models.Venue.observeQuery().subscribe({
-      next: (data) => {console.log("observe", data); setVenues([...data.items]);},
+    const sub = client.models.Venue.observeQuery().subscribe({
+      next: ({items}) => {
+        setVenues([...items])
+      },
     });
 
     // Listen for connection state changes
@@ -32,16 +35,16 @@ function App() {
         setConnectionState(newConnectionState);
       }
   
-  });
+    });
 
 
-// Cleanup function to unsubscribe when the component unmounts
-return () => {
+    // Cleanup function to unsubscribe when the component unmounts
+    return () => {
+      sub.unsubscribe();
+      unsubscribeFromHub();
+    };
 
-  unsubscribeFromHub();
-};
-
-  }, []);
+    }, []);
 
 
 
