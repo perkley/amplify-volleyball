@@ -20,7 +20,7 @@ function App() {
   //console.log("access token", session.tokens?.accessToken)
 
   useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
+    client.models.Venue.observeQuery().subscribe({
       next: (data) => {console.log("observe", data); setVenues([...data.items]);},
     });
 
