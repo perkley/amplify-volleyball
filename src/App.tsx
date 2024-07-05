@@ -104,7 +104,8 @@ function App() {
           <ul>
             {pools.map((pool) => (
               <li key={pool.id}>
-                {pool.team} | {pool.wins} | {pool.losses}
+                {pool.team} | {pool.wins} | {pool.losses} | 
+                {pool.pointDifferentials?.join(', ')}
                 { /* Replace with your actual group check logic */
                   // (user?.attributes?.['custom:groups']?.includes("Administrator")) && (
                   //   <button onClick={() => deletePool(pool.id)}>Delete</button>
