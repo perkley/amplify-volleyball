@@ -9,31 +9,38 @@ specifies that any user authenticated via an API key can "create", "read",
 =========================================================================*/
 
 const schema = a.schema({
-  Venue: a.model ({
-    venueId: a.id(),
-    name: a.string(),
-    matches: a.hasMany("Match","matchId"),
-    owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
-
-  Team: a.model ({
-    teamId: a.id(),
-    name: a.string(),
+  Pool: a.model ({
+    team: a.string(),
     wins: a.integer(),
     losses: a.integer(),
-    match: a.hasMany("Match","matchId"),
-    owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+    pointDifferentials: a.integer().array(),
+  }).authorization(allow => [allow.authenticated().to(['read']), allow.group("Administrator").to(['read', 'create', 'delete'])])
 
-  Match: a.model ({
-    matchId: a.id(),
-    venue: a.belongsTo("Venue", "matchId"),
-    team1: a.belongsTo("Team", "matchId"),
-    team2: a.belongsTo("Team", "matchId"),
-    team1Score: a.integer(),
-    team2Score: a.integer(),
-    owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+  // Venue: a.model ({
+  //   venueId: a.id(),
+  //   name: a.string(),
+  //   matches: a.hasMany("Match","matchId"),
+  //   owner: a.string().authorization(allow => [allow.owner().to(['read']), allow.group("Administrator").to(['read', 'delete'])])
+  // }).authorization(allow => [allow.guest().to(['read']), allow.owner().to(['read']), allow.group("Administrator").to(['read', 'delete'])]),
+
+  // Team: a.model ({
+  //   teamId: a.id(),
+  //   name: a.string(),
+  //   wins: a.integer(),
+  //   losses: a.integer(),
+  //   match: a.hasMany("Match","matchId"),
+  //   owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  // }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+
+  // Match: a.model ({
+  //   matchId: a.id(),
+  //   venue: a.belongsTo("Venue", "matchId"),
+  //   team1: a.belongsTo("Team", "matchId"),
+  //   team2: a.belongsTo("Team", "matchId"),
+  //   team1Score: a.integer(),
+  //   team2Score: a.integer(),
+  //   owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  // }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

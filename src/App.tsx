@@ -10,20 +10,21 @@ import { CONNECTION_STATE_CHANGE } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 
 const client = generateClient<Schema>();
-type Venue = Schema['Venue']['type']
+type Pool = Schema['Pool']['type']
 //const session = await fetchAuthSession();
 
 function App() {
-  const [venues, setVenues] = useState<Venue[]>([]);
+  const [pools, setPools] = useState<Pool[]>([]);
   const [connectionState, setConnectionState] = useState<string>('Connecting'); // Initial state
 
   //console.log("id token", session.tokens?.idToken)
   //console.log("access token", session.tokens?.accessToken)
 
   useEffect(() => {
-    const sub = client.models.Venue.observeQuery().subscribe({
+    const sub = client.models.Pool.observeQuery().subscribe({
       next: ({items}) => {
-        setVenues([...items])
+        console.log("observe", items),
+        setPools([...items])
       },
     });
 
@@ -48,15 +49,15 @@ function App() {
 
 
 
-  function createVenue() {
-    client.models.Venue.create(
-      { name: window.prompt("Venue Name") }
+  function createPool() {
+    client.models.Pool.create(
+      { team: window.prompt("Team Name") }
   );
   }
 
     
-  function deleteVenue(id: string) {
-    client.models.Venue.delete(
+  function deletePool(id: string) {
+    client.models.Pool.delete(
       { id },
       { authMode: 'userPool'})
   }
@@ -66,12 +67,12 @@ function App() {
     <Authenticator>
       {({ signOut, user }) => (
     <main>
-      <h1>{user?.signInDetails?.loginId}'s Venues</h1>
+      <h1>{user?.signInDetails?.loginId}'s Pools</h1>
       
-      <button onClick={createVenue}>+ new</button>
+      <button onClick={createPool}>+ new</button>
       <ul>
-        {venues.map((venue) => (
-          <li onClick={() => deleteVenue(venue.id)} key={venue.id}>{venue.name}</li>
+        {pools.map((pool) => (
+          <li onClick={() => deletePool(pool.id)} key={pool.id}>{pool.team}</li>
         ))}
       </ul>
       <div>
