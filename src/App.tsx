@@ -16,15 +16,35 @@ function App() {
   const [pools, setPools] = useState<Pool[]>([]);
   const [connectionState, setConnectionState] = useState<string>('Connecting'); // Initial state
   const [userGroups, setUserGroups] = useState<string[]>([]);
+  const character = '|';
 
+  // const calculatePointDifferentialSum = (pool: Pool) => {
+  //   if (!pool.pointDifferentials) return 0;
+  //   return pool.pointDifferentials.reduce((acc, curr) => acc + curr, 0);
+  // };
   //console.log("id token", session.tokens?.idToken)
   //console.log("access token", session.tokens?.accessToken)
 
   useEffect(() => {
     const sub = client.models.Pool.observeQuery().subscribe({
       next: ({items}) => {
-        console.log("observe", items),
-        setPools([...items])
+        const updatedPools = items.map((pool) => {
+          if (!pool.pointDifferentials) return pool;
+  
+          pool.sum = pool.pointDifferentials.reduce((acc, curr) => (acc ?? 0) + (curr ?? 0), 0);
+          return { ...pool}; // Add sum as a new property to each pool object
+          // return (pool as Pool & {sum: number})
+        });
+  
+        // Sort pools by sum in descending order (highest sum first)
+        const sortedPools = updatedPools.sort((a, b) => (b.sum ?? 0) - (a.sum ?? 0));
+  
+        // Add ranking property based on sorted position (0-indexed)
+        sortedPools.forEach((pool, index) => {
+          pool.rank = index + 1; // Ranks start from 1
+        });
+  
+        setPools(sortedPools);
       },
     });
 
@@ -81,17 +101,40 @@ function App() {
 
 
   function createPool() {
+    client.models.Pool.list
+    console.log('createPool');
     client.models.Pool.create(
-      { team: window.prompt("Team Name") }
-  );
+    { team: "ZTV 18 Meyer",
+      wins: 4,
+      losses: 2,
+      pointDifferentials: [7,12,11,16,-16,-5],
+      });
+    client.models.Pool.create(
+    { team: "Bonneville",
+      wins: 6,
+      losses: 0,
+      pointDifferentials: [12,10,8,18,16,5],
+    });
+    client.models.Pool.create(
+    { team: "Show Muzzy",
+      wins: 2,
+      losses: 4,
+      pointDifferentials: [-7,-12,-8,-18,10,12],
+    });
+    client.models.Pool.create(
+    { team: "Elite Lynns",
+      wins: 0,
+      losses: 6,
+      pointDifferentials: [-12,-10,-11,-16,-10,-12],
+    });
   }
 
     
-  // function deletePool(id: string) {
-  //   client.models.Pool.delete(
-  //     { id },
-  //     { authMode: 'userPool'})
-  // }
+  function deletePool(id: string) {
+    client.models.Pool.delete(
+      { id },
+      { authMode: 'userPool'})
+  }
 
   return (
 
@@ -100,12 +143,13 @@ function App() {
         <main>
           <h1>{user?.signInDetails?.loginId}'s View</h1>
 
-          <button onClick={createPool}>+ new</button>
+          <button onClick={createPool}>Create Default List</button>
           <ul>
             {pools.map((pool) => (
-              <li key={pool.id}>
-                {pool.team} | {pool.wins} | {pool.losses} | 
-                {pool.pointDifferentials?.join(', ')}
+              <li key={pool.id} onClick={() => deletePool(pool.id)}>
+                {pool.team} - Wins:{character?.repeat(pool.wins ?? 0)} Losses:{character?.repeat(pool.losses ?? 0)} pDif &nbsp; 
+                {pool.pointDifferentials?.join(', ')} - Sum: {pool.sum} [{pool.rank}] 
+                {/* {calculatePointDifferentialSum(pool)} */}
                 { /* Replace with your actual group check logic */
                   // (user?.attributes?.['custom:groups']?.includes("Administrator")) && (
                   //   <button onClick={() => deletePool(pool.id)}>Delete</button>
