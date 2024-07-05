@@ -87,11 +87,11 @@ function App() {
   }
 
     
-  function deletePool(id: string) {
-    client.models.Pool.delete(
-      { id },
-      { authMode: 'userPool'})
-  }
+  // function deletePool(id: string) {
+  //   client.models.Pool.delete(
+  //     { id },
+  //     { authMode: 'userPool'})
+  // }
 
   return (
 
