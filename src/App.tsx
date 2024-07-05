@@ -1,180 +1,23 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+import Home from './components/Home';
+import EditPool from './components/EditPool';
 
-import { Authenticator } from '@aws-amplify/ui-react'
-import '@aws-amplify/ui-react/styles.css'
-
-import { CONNECTION_STATE_CHANGE } from 'aws-amplify/data';
-import { Hub } from 'aws-amplify/utils';
-import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
-
-const client = generateClient<Schema>();
-type Pool = Schema['Pool']['type'];
-
-function App() {
-  const [pools, setPools] = useState<Pool[]>([]);
-  const [connectionState, setConnectionState] = useState<string>('Connecting'); // Initial state
-  const [userGroups, setUserGroups] = useState<string[]>([]);
-  const character = '|';
-
-  // const calculatePointDifferentialSum = (pool: Pool) => {
-  //   if (!pool.pointDifferentials) return 0;
-  //   return pool.pointDifferentials.reduce((acc, curr) => acc + curr, 0);
-  // };
-  //console.log("id token", session.tokens?.idToken)
-  //console.log("access token", session.tokens?.accessToken)
-
-  useEffect(() => {
-    const sub = client.models.Pool.observeQuery().subscribe({
-      next: ({items}) => {
-        const updatedPools = items.map((pool) => {
-          if (!pool.pointDifferentials) return pool;
-  
-          pool.sum = pool.pointDifferentials.reduce((acc, curr) => (acc ?? 0) + (curr ?? 0), 0);
-          return { ...pool}; // Add sum as a new property to each pool object
-          // return (pool as Pool & {sum: number})
-        });
-  
-        // Sort pools by sum in descending order (highest sum first)
-        const sortedPools = updatedPools.sort((a, b) => (b.sum ?? 0) - (a.sum ?? 0));
-  
-        // Add ranking property based on sorted position (0-indexed)
-        sortedPools.forEach((pool, index) => {
-          pool.rank = index + 1; // Ranks start from 1
-        });
-  
-        setPools(sortedPools);
-      },
-    });
-
-    async function fetchUserGroup() {
-      try {
-        console.log('UserGroups',userGroups);
-        const currentUser = await getCurrentUser();
-        console.log('Current User:', currentUser);
-        const userAttributes = await fetchUserAttributes();
-        console.log('userAttributes', userAttributes);
-        // Properly handle the 'cognito:groups' attribute
-        const groupsAttribute = userAttributes['cognito:groups'];
-        console.log('Groups Attributes', groupsAttribute);
-        let groups: string[] = [];
-        
-        if (typeof groupsAttribute === 'string') {
-          // If it's a string, split it into an array
-          groups = groupsAttribute.split(',');
-        } else if (Array.isArray(groupsAttribute)) {
-          // If it's already an array, use it as is
-          groups = groupsAttribute;
-        }
-        
-        console.log('groups', groups);
-
-        setUserGroups(groups);
-      } catch (error) {
-        console.error('Error fetching user group:', error);
-      }
-    }
-    fetchUserGroup();
-
-    // Listen for connection state changes
-    const unsubscribeFromHub = Hub.listen('api', (data: any) => {
-      const { payload } = data;
-      if (payload.event === CONNECTION_STATE_CHANGE) {
-        const newConnectionState = payload.data.connectionState as string;
-        setConnectionState(newConnectionState);
-      }
-  
-    });
-
-    
-
-    // Cleanup function to unsubscribe when the component unmounts
-    return () => {
-      sub.unsubscribe();
-      unsubscribeFromHub();
-    };
-    
-
-  }, []);
-
-
-
-  function createPool() {
-    client.models.Pool.list
-    console.log('createPool');
-    client.models.Pool.create(
-    { team: "ZTV 18 Meyer",
-      wins: 4,
-      losses: 2,
-      pointDifferentials: [7,12,11,16,-16,-5],
-      });
-    client.models.Pool.create(
-    { team: "Bonneville",
-      wins: 6,
-      losses: 0,
-      pointDifferentials: [12,10,8,18,16,5],
-    });
-    client.models.Pool.create(
-    { team: "Show Muzzy",
-      wins: 2,
-      losses: 4,
-      pointDifferentials: [-7,-12,-8,-18,10,12],
-    });
-    client.models.Pool.create(
-    { team: "Elite Lynns",
-      wins: 0,
-      losses: 6,
-      pointDifferentials: [-12,-10,-11,-16,-10,-12],
-    });
-  }
-
-    
-  function deletePool(id: string) {
-    client.models.Pool.delete(
-      { id },
-      { authMode: 'userPool'})
-  }
-
+const App: React.FC = () => {
   return (
-
     <Authenticator>
       {({ signOut, user }) => (
-        <main>
-          <h1>{user?.signInDetails?.loginId}'s View</h1>
-
-          <button onClick={createPool}>Create Default List</button>
-          <ul>
-            {pools.map((pool) => (
-              <li key={pool.id} onClick={() => deletePool(pool.id)}>
-                {pool.team} - Wins:{character?.repeat(pool.wins ?? 0)} Losses:{character?.repeat(pool.losses ?? 0)} pDif &nbsp; 
-                {pool.pointDifferentials?.join(', ')} - Sum: {pool.sum} [{pool.rank}] 
-                {/* {calculatePointDifferentialSum(pool)} */}
-                { /* Replace with your actual group check logic */
-                  // (user?.attributes?.['custom:groups']?.includes("Administrator")) && (
-                  //   <button onClick={() => deletePool(pool.id)}>Delete</button>
-                  // )
-                }
-              </li>
-            ))}
-          </ul>
-          <div>
-            <p>Connection Status: {connectionState}</p>  {/* Display connection state */}
-          </div>
-          <button onClick={signOut}>Sign out</button>
-          <h2>User Groups:</h2>
-      
-      {userGroups.length > 0 ? (
-        <ul>
-          {userGroups.map((group, index) => (
-            <li key={index}>{group}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>User is not in any groups.</p>
-      )}
-
-        </main>
+        <Router>
+          <main>
+            <h1>{user?.signInDetails?.loginId}'s View</h1>
+            <Routes>
+              <Route path="/" element={<Home user={user}  signOut={signOut} />} />
+              <Route path="/edit/:id" element={<EditPool />} />
+            </Routes>
+          </main>
+        </Router>
       )}
     </Authenticator>
   );

@@ -16,7 +16,7 @@ const schema = a.schema({
     pointDifferentials: a.integer().array(),
     sum: a.integer(),
     rank: a.integer(),
-  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'delete'])])
+  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])])
 
   // Venue: a.model ({
   //   venueId: a.id(),
