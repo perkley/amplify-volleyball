@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from "../../amplify/data/resource";
+import '../editpool.css';
 
 const client = generateClient<Schema>();
 type Pool = Schema['Pool']['type'];
@@ -111,8 +112,8 @@ const EditPool: React.FC = () => {
           value={pointDiffInput}
           onChange={handleInputChange}
         />
-      </div>
-      <button type="submit">Save Changes</button>
+      </div><br/>
+      <button type="submit">Save Changes</button>&nbsp;&nbsp;
       <button type="button" onClick={() => navigate('/')}>Cancel</button>
     </form>
   );

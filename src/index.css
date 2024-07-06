@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  background-image: url("images/website-bg.jpg");
+  background-image: url("/images/website-bg.jpg");
   background-color: #47565d;
   background-repeat: no-repeat;
   background-position: bottom; /* Center the image */
