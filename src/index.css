@@ -75,6 +75,7 @@ table {
   background:white;
   border-collapse: collapse;
   color: black;
+  width: 100%;
 }
 
 tr {
@@ -100,4 +101,8 @@ h1, h2, h3 {
 
 h1 {
   color: #d4a21b;
+}
+
+h2 {
+  color: #4AF5FD;
 }
