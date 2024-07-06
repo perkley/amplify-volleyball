@@ -4,56 +4,17 @@ import { Link } from 'react-router-dom';
 import { generateClient } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 import { CONNECTION_STATE_CHANGE } from 'aws-amplify/data';
-
+import { Loader } from '@aws-amplify/ui-react';
 
 const client = generateClient<Schema>();
 type Pool = Schema['Pool']['type'];
 
 interface HomeProps {
   user: any;
-  signOut: (() => void) | undefined;
+  isAdmin: boolean;
 }
 
-
-
-const Home: React.FC<HomeProps> = ({ signOut }) => {
-  const [pools, setPools] = useState<Pool[]>([]);
-  const [connectionState, setConnectionState] = useState<string>('Connecting');
-
-  useEffect(() => {
-    const sub = client.models.Pool.observeQuery().subscribe({
-      next: ({ items }) => {
-        const updatedPools = items.map((pool: Pool) => {
-          if (!pool.pointDifferentials) return pool;
-
-          pool.sum = pool.pointDifferentials.reduce((acc, curr) => (acc ?? 0) + (curr ?? 0), 0);
-          return { ...pool };
-        });
-
-        const sortedPools = updatedPools.sort((a, b) => (b.sum ?? 0) - (a.sum ?? 0));
-        sortedPools.forEach((pool, index) => {
-          pool.rank = index + 1;
-        });
-
-        setPools(sortedPools);
-      },
-    });
-
-    const unsubscribeFromHub = Hub.listen('api', (data: any) => {
-        const { payload } = data;
-        if (payload.event === CONNECTION_STATE_CHANGE) {
-          const newConnectionState = payload.data.connectionState as string;
-          setConnectionState(newConnectionState);
-        }
-    });
-
-    return () => {
-      sub.unsubscribe();
-      unsubscribeFromHub();
-    };
-  }, []);
-
-  const createPool = () => {
+export const createPool = () => {
     client.models.Pool.create({
       team: "ZTV 18 Meyer",
       wins: 4,
@@ -80,24 +41,81 @@ const Home: React.FC<HomeProps> = ({ signOut }) => {
     });
   }
 
+
+
+const Home: React.FC<HomeProps> = ({isAdmin}) => {
+  const [pools, setPools] = useState<Pool[]>([]);
+  const [connectionState, setConnectionState] = useState<string>('Connecting');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log('IsAdmin', isAdmin);
+    const sub = client.models.Pool.observeQuery().subscribe({
+      next: ({ items }) => {
+        const updatedPools = items.map((pool: Pool) => {
+          if (!pool.pointDifferentials) return pool;
+
+          pool.sum = pool.pointDifferentials.reduce((acc, curr) => (acc ?? 0) + (curr ?? 0), 0);
+          return { ...pool };
+        });
+
+        const sortedPools = updatedPools.sort((a, b) => (b.sum ?? 0) - (a.sum ?? 0));
+        sortedPools.forEach((pool, index) => {
+          pool.rank = index + 1;
+        });
+
+        setPools(sortedPools);
+        setLoading(false);
+      },
+    });
+
+    const unsubscribeFromHub = Hub.listen('api', (data: any) => {
+        const { payload } = data;
+        if (payload.event === CONNECTION_STATE_CHANGE) {
+          const newConnectionState = payload.data.connectionState as string;
+          setConnectionState(newConnectionState);
+        }
+    });
+
+    return () => {
+      sub.unsubscribe();
+      unsubscribeFromHub();
+    };
+  }, []);
+
+  
+
   const deletePool = (id: string) => {
     client.models.Pool.delete({ id }, { authMode: 'userPool' });
   }
 
+  if (loading) {
+    
+    return (<div>
+        Loading ...
+      <Loader variation="linear" />
+         </div>
+         
+    );
+  }
+
   return (
     <div>
-      <button onClick={createPool}>Create Default List</button>
-
       <table>
         <thead>
           <tr>
             <th>Team</th>
             <th>Wins</th>
             <th>Losses</th>
-            <th>Point Differentials</th>
+            <th className="taLeft">Point Differentials</th>
             <th>Total</th>
             <th>Place</th>
-            <th>Actions</th>
+            {isAdmin && (
+                <>
+            
+            <th colSpan={2}>Admin</th>
+            </>
+              )}
           </tr>
         </thead>
         <tbody>
@@ -109,8 +127,12 @@ const Home: React.FC<HomeProps> = ({ signOut }) => {
               <td>{pool.pointDifferentials?.join(' ')}</td>
               <td className="taCenter">{pool.sum}</td>
               <td className="taCenter">{pool.rank}</td>
+              {isAdmin && (
+                <>
               <td><Link to={`/edit/${pool.id}`}>Edit</Link></td>
-              <td><button onClick={() => deletePool(pool.id)}>Delete</button></td>
+              <td><td><a href="#" onClick={(e) => { e.preventDefault(); deletePool(pool.id); }}>Delete</a></td></td>
+              </>
+              )}
             </tr>
           ))}
         </tbody>
@@ -119,7 +141,7 @@ const Home: React.FC<HomeProps> = ({ signOut }) => {
       <div>
         <p>Connection Status: {connectionState}</p>
       </div>
-      {signOut && <button onClick={signOut}>Sign out</button>}
+      
     </div>
   );
 }

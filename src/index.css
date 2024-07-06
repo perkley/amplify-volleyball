@@ -1,12 +1,18 @@
 body {
   margin: 0;
-  background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255));
+  background-image: url("images/website-bg.jpg");
+  background-color: #47565d;
+  background-repeat: no-repeat;
+  background-position: bottom; /* Center the image */
+  background-size: auto; /* Resize the background image to cover the entire container */
+  /* background: linear-gradient(180deg, rgb(117, 81, 194), rgb(255, 255, 255)); */
   display: flex;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   height: 100vh;
   width: 100vw;
   justify-content: center;
-  align-items: center;
+  align-items: first baseline;
+  color: white;
 }
 
 main {
@@ -62,11 +68,13 @@ li:hover {
 a {
   font-weight: 800;
   text-decoration: none;
+  color: #47565d;
 }
 
 table {
   background:white;
   border-collapse: collapse;
+  color: black;
 }
 
 tr {
@@ -76,6 +84,20 @@ tr {
 .taCenter {
   text-align: center;
 }
-td {
+.taLeft {
+  text-align: left;
+}
+
+td,th {
   padding: 4px;
+}
+
+h1, h2, h3 {
+  width: 100%;
+  text-align: center;
+  margin: 0.5rem;
+}
+
+h1 {
+  color: #d4a21b;
 }
