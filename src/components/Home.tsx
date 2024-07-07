@@ -101,6 +101,7 @@ const Home: React.FC<HomeProps> = ({isAdmin}) => {
 
   return (
     <div>
+        <br/>
       <table>
         <thead>
           <tr>
@@ -137,6 +138,15 @@ const Home: React.FC<HomeProps> = ({isAdmin}) => {
           ))}
         </tbody>
       </table>
+{/* <br/>
+      <table>
+        <tr>
+            <td>Match 1</td>
+            <td>1 vs 3 (2)</td>
+            <td>Scores:</td>
+            <td>25- 18, 25-13</td>
+        </tr>
+      </table> */}
 
       <div>
         <p>Connection Status: {connectionState}</p>

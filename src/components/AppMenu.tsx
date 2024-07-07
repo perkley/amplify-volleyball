@@ -15,7 +15,7 @@ const AppMenu: React.FC<AppMenuProps> = ({ signOut, createPool, isAdmin }) => {
     <Menu menuAlign="start">
       
       <MenuItem onClick={() => navigate("/")}>
-        View Score Card
+        View Pool Score Card
       </MenuItem>
       <MenuItem onClick={() => navigate("/brackets")}>
         View Brackets
