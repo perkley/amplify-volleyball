@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { LaunchTemplateRequireImdsv2Aspect } from "aws-cdk-lib/aws-ec2";
 
 
 /*== STEP 1 ===============================================================
@@ -16,33 +17,34 @@ const schema = a.schema({
     pointDifferentials: a.integer().array(),
     sum: a.integer(),
     rank: a.integer(),
-  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])])
+  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
 
-  // Venue: a.model ({
-  //   venueId: a.id(),
-  //   name: a.string(),
-  //   matches: a.hasMany("Match","matchId"),
-  //   owner: a.string().authorization(allow => [allow.owner().to(['read']), allow.group("Administrator").to(['read', 'delete'])])
-  // }).authorization(allow => [allow.guest().to(['read']), allow.owner().to(['read']), allow.group("Administrator").to(['read', 'delete'])]),
+  Venue: a.model ({
+    // venueId: a.id(),
+    name: a.string(),
+    address: a.string(),
+    // matches: a.hasMany("Match","matchId"),
+    // owner: a.string().authorization(allow => [allow.owner().to(['read']), allow.group("Administrator").to(['read', 'delete'])])
+  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
 
-  // Team: a.model ({
-  //   teamId: a.id(),
-  //   name: a.string(),
-  //   wins: a.integer(),
-  //   losses: a.integer(),
-  //   match: a.hasMany("Match","matchId"),
-  //   owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  // }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+  Team: a.model ({
+    // teamId: a.id(),
+    name: a.string(),
+    // wins: a.integer(),
+    // losses: a.integer(),
+    match: a.hasMany("Match","matchId"),
+    // owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
 
-  // Match: a.model ({
-  //   matchId: a.id(),
-  //   venue: a.belongsTo("Venue", "matchId"),
-  //   team1: a.belongsTo("Team", "matchId"),
-  //   team2: a.belongsTo("Team", "matchId"),
-  //   team1Score: a.integer(),
-  //   team2Score: a.integer(),
-  //   owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  // }).authorization(allow => [allow.guest().to(['read']), allow.owner()]),
+  Match: a.model ({
+    matchId: a.id(),
+    venue: a.belongsTo("Venue", "matchId"),
+    team1: a.belongsTo("Team", "matchId"),
+    team2: a.belongsTo("Team", "matchId"),
+    team1Score: a.integer(),
+    team2Score: a.integer(),
+    // owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
+  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -87,3 +89,4 @@ Fetch records from the database and use them in your frontend component.
 // const { data: todos } = await client.models.Todo.list()
 
 // return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
+
