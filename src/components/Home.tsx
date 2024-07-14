@@ -5,8 +5,10 @@ import { generateClient } from 'aws-amplify/data';
 import { Hub } from 'aws-amplify/utils';
 import { CONNECTION_STATE_CHANGE } from 'aws-amplify/data';
 import { Loader } from '@aws-amplify/ui-react';
+import { v4 as uuidv4 } from 'uuid';
 
 const client = generateClient<Schema>();
+// type PoolGroup = Schema['PoolGroup']['type'];
 type Pool = Schema['Pool']['type'];
 
 interface HomeProps {
@@ -14,34 +16,72 @@ interface HomeProps {
   isAdmin: boolean;
 }
 
-export const createPool = () => {
-    client.models.Pool.create({
-      team: "ZTV 18 Meyer",
-      wins: 4,
-      losses: 2,
-      pointDifferentials: [7, 12, 11, 16, -16, -5],
-    });
-    client.models.Pool.create({
-      team: "Bonneville",
-      wins: 6,
-      losses: 0,
-      pointDifferentials: [12, 10, 8, 18, 16, 5],
-    });
-    client.models.Pool.create({
-      team: "Show Muzzy",
-      wins: 2,
-      losses: 4,
-      pointDifferentials: [-7, -12, -8, -18, 10, 12],
-    });
-    client.models.Pool.create({
-      team: "Elite Lynns",
-      wins: 0,
-      losses: 6,
-      pointDifferentials: [-12, -10, -11, -16, -10, -12],
-    });
-  }
 
+function generateUniqueId(): string {
+  return uuidv4();
+}
 
+// Generate a unique ID for the PoolGroup
+const poolGroupId = generateUniqueId(); // You'll need to implement this function
+
+export const createTournamentStructure = async () => {
+  try {
+   
+  // Create a new PoolGroup
+      const newPoolGroup = await client.models.PoolGroup.create({
+          poolGroupId: generateUniqueId(),
+          name: "Summer Tournament 2024"
+        });
+      console.log("Created Pool Group:", newPoolGroup);
+
+      // Create two Pools
+
+        const poolA = await client.models.Pool.create({
+          poolId: generateUniqueId(),
+          name: "Pool A",
+          poolGroupId: newPoolGroup.data?.poolGroupId || poolGroupId
+        });
+
+      const poolB = await 
+        client.models.Pool.create({
+          poolId: generateUniqueId(),
+          name: "Pool B",
+          poolGroupId: newPoolGroup.data?.poolGroupId || poolGroupId
+        });
+      console.log("Created Pools:", poolA, poolB);
+    
+          
+          // Rest of your function...
+        } catch (error) {
+          console.error("Error creating tournament structure:", error);
+        }
+
+}
+
+// client.models.Pool.create({
+    //   team: "ZTV 18 Meyer",
+    //   wins: 4,
+    //   losses: 2,
+    //   pointDifferentials: [7, 12, 11, 16, -16, -5],
+    // });
+    // client.models.Pool.create({
+    //   team: "Bonneville",
+    //   wins: 6,
+    //   losses: 0,
+    //   pointDifferentials: [12, 10, 8, 18, 16, 5],
+    // });
+    // client.models.Pool.create({
+    //   team: "Show Muzzy",
+    //   wins: 2,
+    //   losses: 4,
+    //   pointDifferentials: [-7, -12, -8, -18, 10, 12],
+    // });
+    // client.models.Pool.create({
+    //   team: "Elite Lynns",
+    //   wins: 0,
+    //   losses: 6,
+    //   pointDifferentials: [-12, -10, -11, -16, -10, -12],
+    // });
 
 const Home: React.FC<HomeProps> = ({isAdmin}) => {
   const [pools, setPools] = useState<Pool[]>([]);
@@ -121,8 +161,8 @@ const Home: React.FC<HomeProps> = ({isAdmin}) => {
         </thead>
         <tbody>
           {pools.map((pool) => (
-            <tr key={pool.id}>
-              <td>{pool.team}</td>
+            <tr key={pool.poolId}>
+              <td>{pool.name}</td>
               <td className="taCenter">{pool.wins}</td>
               <td className="taCenter">{pool.losses}</td>
               <td>{pool.pointDifferentials?.join(' ')}</td>

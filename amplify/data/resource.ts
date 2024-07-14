@@ -1,51 +1,60 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-import { LaunchTemplateRequireImdsv2Aspect } from "aws-cdk-lib/aws-ec2";
-
-
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
 
 const schema = a.schema({
+  PoolGroup: a.model ({
+    name: a.string().required(),
+    poolId: a.id(),
+    pools: a.hasMany("Pool", "poolGroupId")
+  }),
+  // .identifier(["poolGroupId"]),
+
   Pool: a.model ({
-    team: a.string(),
+    // poolId: a.id().required(),
+    name: a.string().required(),
+    teams: a.hasMany("Team", "poolId"), 
+    poolGroupId: a.id(),
+    poolGroup: a.belongsTo("PoolGroup", "poolGroupId"),
+  }),
+  // .identifier(["poolId"]),
+
+  Team: a.model ({
+    // teamId: a.id().required(),
+    name: a.string().required(),
     wins: a.integer(),
     losses: a.integer(),
     pointDifferentials: a.integer().array(),
     sum: a.integer(),
+    place: a.integer(),
     rank: a.integer(),
-  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
+    // matchId: a.id(),
+    // matches: a.hasMany("Match","teamId"),
+    poolId: a.string(),
+    pool: a.belongsTo("Pool", "poolId"),
+  }),
+  // .identifier(["teamId"]),
 
-  Venue: a.model ({
-    // venueId: a.id(),
-    name: a.string(),
-    address: a.string(),
-    // matches: a.hasMany("Match","matchId"),
-    // owner: a.string().authorization(allow => [allow.owner().to(['read']), allow.group("Administrator").to(['read', 'delete'])])
-  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
+  // Match: a.model ({
+  //   // matchId: a.id().required(),
+  //   teamId: a.id(),
+  //   venueId: a.string(), // foreign key
+  //   venue: a.belongsTo("Venue", "venueId"),
+  //   team1id: a.id(),
+  //   team1: a.belongsTo("Team", "team1Id"),
+  //   team2id: a.id(),
+  //   team2: a.belongsTo("Team", "team2Id"),
+  //   team1Score: a.integer(),
+  //   team2Score: a.integer(),
+  // }),
+  // .identifier(["matchId"]),
 
-  Team: a.model ({
-    // teamId: a.id(),
-    name: a.string(),
-    // wins: a.integer(),
-    // losses: a.integer(),
-    match: a.hasMany("Match","matchId"),
-    // owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
-
-  Match: a.model ({
-    matchId: a.id(),
-    venue: a.belongsTo("Venue", "matchId"),
-    team1: a.belongsTo("Team", "matchId"),
-    team2: a.belongsTo("Team", "matchId"),
-    team1Score: a.integer(),
-    team2Score: a.integer(),
-    // owner: a.string().authorization(allow => [allow.owner().to(['read', 'delete']), allow.group("Admin").to(['read', 'delete'])])
-  }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]),
-});
+  // Venue: a.model ({
+  //   // venueId: a.id().required(),
+  //   name: a.string(),
+  //   address: a.string(),
+  //   matches: a.hasMany("Match","venueId"),
+  // })
+  // .identifier(["venueId"]),
+}).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]);
 
 export type Schema = ClientSchema<typeof schema>;
 

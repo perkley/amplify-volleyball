@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import Home, { createPool } from './components/Home';
+// import Home, { createTournamentStructure } from './components/Home';
+import PoolGroup, { createTournamentStructure } from './components/PoolGroup';
 import EditPool from './components/EditPool';
 import ViewBrackets from './components/ViewBrackets';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -60,10 +61,10 @@ const App: React.FC = () => {
 
             <h3>Logged in as {user?.signInDetails?.loginId}</h3>
 
-            <AppMenu signOut={signOut} createPool={createPool} isAdmin={isAdmin} />
+            <AppMenu signOut={signOut} createTournamentStructure={createTournamentStructure} isAdmin={isAdmin} />
             
             <Routes>
-              <Route path="/" element={<Home user={user} isAdmin={isAdmin} />} />
+              <Route path="/" element={<PoolGroup user={user} isAdmin={isAdmin} />} />
               <Route path="/edit/:id" element={<EditPool />} />
               <Route path="/brackets/" element={<ViewBrackets />} />
             </Routes>

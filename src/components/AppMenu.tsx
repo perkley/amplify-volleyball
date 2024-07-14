@@ -4,11 +4,11 @@ import { Divider, Menu, MenuItem } from '@aws-amplify/ui-react';
 
 interface AppMenuProps {
     signOut: (() => void) | undefined;
-    createPool: () => void;  // Adjust this type if createPool takes any parameters
+    createTournamentStructure: () => void;  // Adjust this type if createTournamentStructure takes any parameters
     isAdmin: boolean;
 }
 
-const AppMenu: React.FC<AppMenuProps> = ({ signOut, createPool, isAdmin }) => {
+const AppMenu: React.FC<AppMenuProps> = ({ signOut, createTournamentStructure, isAdmin }) => {
   const navigate = useNavigate();
 
   return (
@@ -22,7 +22,7 @@ const AppMenu: React.FC<AppMenuProps> = ({ signOut, createPool, isAdmin }) => {
       </MenuItem>
       {isAdmin && <>
       <Divider />
-      <MenuItem onClick={createPool}>
+      <MenuItem onClick={createTournamentStructure}>
         Create Default List
       </MenuItem>
       </>}

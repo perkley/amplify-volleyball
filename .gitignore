@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+retailstore
 
 # Editor directories and files
 .vscode/*
@@ -27,3 +28,4 @@ dist-ssr
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+retailstore.zip
