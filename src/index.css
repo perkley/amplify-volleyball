@@ -57,12 +57,12 @@ ul {
 }
 
 li {
-  background-color: white;
+  background-color: #333;
   padding: 8px;
 }
 
 li:hover {
-  background: #dadbf9;
+  background: #555;
 }
 
 a {
