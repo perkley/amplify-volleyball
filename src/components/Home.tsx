@@ -24,7 +24,7 @@ function generateUniqueId(): string {
 // Generate a unique ID for the PoolGroup
 const poolGroupId = generateUniqueId(); // You'll need to implement this function
 
-export const createTournamentStructure = async () => {
+export const seedPoolGroupData = async () => {
   try {
    
   // Create a new PoolGroup

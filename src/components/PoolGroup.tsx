@@ -15,38 +15,6 @@ interface PoolGroupProps {
   isAdmin: boolean;
 }
 
-export const createTournamentStructure = async () => {
-    await CreateNewPoolGroup({
-      tournamentName: "Summer Tournament 2024",
-      poolNames: ["Pool A", "Pool B", "Pool C"]
-    });
-
-    await CreateNewPoolGroup({
-      tournamentName: "Fall Tournament 2024",
-      poolNames: ["Pool D", "Pool E", "Pool F"]
-    });
-}
-
-const CreateNewPoolGroup = async ({tournamentName, poolNames}: {tournamentName: string;  poolNames: string[];}) => {
-    const { data: poolGroup } = await client.models.PoolGroup.create({
-      name: tournamentName,
-    });
-
-    console.log("Created Pool Group:", poolGroup);
-
-    const createdPools = await Promise.all(
-      poolNames.map(async (poolName) => {
-        const { data: pool } = await client.models.Pool.create({
-          name: poolName,
-          poolGroupId: poolGroup?.id,
-        });
-        return pool;
-      })
-    );
-
-      console.log('Created Pools', createdPools);
-}
-
 const PoolGroup: React.FC<PoolGroupProps> = ({isAdmin}) => {
   const [poolGroups, setPoolGroups] = useState<PoolGroup[]>([]);
   const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>([]);

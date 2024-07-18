@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-// import Home, { createTournamentStructure } from './components/Home';
-import PoolGroup, { createTournamentStructure } from './components/PoolGroup';
+// import Home, { seedPoolGroupData } from './components/Home';
+import PoolGroup from './components/PoolGroup';
 import EditPool from './components/EditPool';
 import ViewBrackets from './components/ViewBrackets';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import AppMenu from './components/AppMenu';
-
-
 
 const CustomHeader = () => (
   <header>
@@ -61,7 +59,7 @@ const App: React.FC = () => {
 
             <h3>Logged in as {user?.signInDetails?.loginId}</h3>
 
-            <AppMenu signOut={signOut} createTournamentStructure={createTournamentStructure} isAdmin={isAdmin} />
+            <AppMenu signOut={signOut} isAdmin={isAdmin} />
             
             <Routes>
               <Route path="/" element={<PoolGroup user={user} isAdmin={isAdmin} />} />

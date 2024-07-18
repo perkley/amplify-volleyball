@@ -3,13 +3,12 @@ import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 const schema = a.schema({
   PoolGroup: a.model ({
     name: a.string().required(),
-    poolId: a.id(),
+    //poolId: a.id(),
     pools: a.hasMany("Pool", "poolGroupId")
   }),
   // .identifier(["poolGroupId"]),
 
   Pool: a.model ({
-    // poolId: a.id().required(),
     name: a.string().required(),
     teams: a.hasMany("Team", "poolId"), 
     poolGroupId: a.id(),
@@ -26,34 +25,46 @@ const schema = a.schema({
     sum: a.integer(),
     place: a.integer(),
     rank: a.integer(),
-    // matchId: a.id(),
-    // matches: a.hasMany("Match","teamId"),
-    poolId: a.string(),
+    matchId: a.id(),
+    matchesTeam1: a.hasMany("Match","team1Id"),
+    matchesTeam2: a.hasMany("Match","team2Id"),
+    winningTeam: a.hasMany("Match", "winningTeamId"),
+    poolId: a.id(),
     pool: a.belongsTo("Pool", "poolId"),
   }),
   // .identifier(["teamId"]),
 
-  // Match: a.model ({
-  //   // matchId: a.id().required(),
-  //   teamId: a.id(),
-  //   venueId: a.string(), // foreign key
-  //   venue: a.belongsTo("Venue", "venueId"),
-  //   team1id: a.id(),
-  //   team1: a.belongsTo("Team", "team1Id"),
-  //   team2id: a.id(),
-  //   team2: a.belongsTo("Team", "team2Id"),
-  //   team1Score: a.integer(),
-  //   team2Score: a.integer(),
-  // }),
-  // .identifier(["matchId"]),
+  // The following were added to create the brackets
+  Tournament: a.model({
+    name: a.string().required(),
+    matchId: a.id(),
+    matches: a.hasMany("Match", "tournamentId"),
+  }),
+  
+  Match: a.model ({
+    tournamentId: a.id(),
+    tournament: a.belongsTo("Tournament", "tournamentId"),
+    round: a.integer().required(),
+    matchNumber: a.integer().required(),
+    // matchId: a.id().required(),
+    // teamId: a.id(),
+    // venueId: a.string(), // foreign key
+    // venue: a.belongsTo("Venue", "venueId"),
+    team1Id: a.id(),
+    team1: a.belongsTo("Team", "team1Id"),
+    team2Id: a.id(),
+    team2: a.belongsTo("Team", "team2Id"),
+    team1Score: a.integer(),
+    team2Score: a.integer(),
+    winningTeamId: a.id(),
+    winningTeam: a.belongsTo("Team", "winningTeamId"),
+    nextMatchId: a.id(),
+    nextMatch: a.belongsTo("Match", "nextMatchId"),
+    nextMatchRel: a.hasMany("Match", "nextMatchId")
+  })
+  .secondaryIndexes((index) => [index("tournamentId")])
+  //.identifier(["matchId"]),
 
-  // Venue: a.model ({
-  //   // venueId: a.id().required(),
-  //   name: a.string(),
-  //   address: a.string(),
-  //   matches: a.hasMany("Match","venueId"),
-  // })
-  // .identifier(["venueId"]),
 }).authorization(allow => [allow.authenticated().to(['read']), allow.groups(["Administrator"]).to(['read', 'create', 'update', 'delete'])]);
 
 export type Schema = ClientSchema<typeof schema>;
