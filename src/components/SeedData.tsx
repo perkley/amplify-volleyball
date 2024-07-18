@@ -85,6 +85,7 @@ export const seedBracketsData = async () => {
         team2Id: team2?.id,
         team1Score: 14,
         team2Score: 10,
+        winningTeamId: team1?.id,
         tournamentId: tournament?.id,
     });
     const { data: match_r1m2 } = await client.models.Match.create({
@@ -94,6 +95,7 @@ export const seedBracketsData = async () => {
         team2Id: team4?.id,
         team1Score: 11,
         team2Score: 12,
+        winningTeamId: team4?.id,
         tournamentId: tournament?.id,
     });
     const { data: match_r2m1 } = await client.models.Match.create({
@@ -103,8 +105,19 @@ export const seedBracketsData = async () => {
         team2Id: team4?.id,
         team1Score: 8,
         team2Score: 11,
+        winningTeamId: team4?.id,
         tournamentId: tournament?.id,
     });
+    await client.models.Match.create({
+      matchNumber: 1,
+      round: 3,
+      team1Id: team4?.id,
+      //team2Id: team4?.id,
+      team1Score: 0,
+      team2Score: 0,
+      //winningTeamId: team4?.id,
+      tournamentId: tournament?.id,
+  });
 
     // Connect the Round 2 Match 1 as the Next Match for the first Matches
     if (match_r1m1 && match_r2m1) {
@@ -120,6 +133,7 @@ export const seedBracketsData = async () => {
         })
     }
 
+    console.log('Data Finished being Added');
     
 }
 

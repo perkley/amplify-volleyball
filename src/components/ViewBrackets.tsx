@@ -5,16 +5,17 @@ import type { Schema } from "../../amplify/data/resource";
 
 const client = generateClient<Schema>();
 type Tournament = Schema['Tournament']['type'];
-type Match = Schema['Match']['type'];
 
 // This is the match object
 type MatchObj = {
   team1: string;
+  team1id: string;
+  team2id: string;
   team2: string;
   score1: string;
   score2: string;
-  seed1: number;
-  seed2: number;
+  seed1: string;
+  seed2: string;
   winner: number;
 } | null;
 
@@ -41,21 +42,22 @@ const updateMatch = (bracket: Bracket, round: number, matchIndex: number, matchD
 let bracket: Bracket = createBracket();
 
 // Example: Populate some data
-bracket = updateMatch(bracket, 1, 0, { team1: "Show Muzzy", team2: "Rise", score1: "14", score2: "10", seed1: 1, seed2: 8, winner: 1 });
-bracket = updateMatch(bracket, 1, 1, { team1: "ZTV 18 Meyer", team2: "Bonneville", score1: "11", score2: "12", seed1: 4, seed2: 5, winner: 2 });
-bracket = updateMatch(bracket, 2, 0, { team1: "Show Muzzy", team2: "Bonneville", score1: "8", score2: "11", seed1: 1, seed2: 5, winner: 2 });
+//bracket = updateMatch(bracket, 1, 0, { team1: "Show Muzzy", team2: "Rise", score1: "14", score2: "10", seed1: 1, seed2: 8, winner: 1 });
+// bracket = updateMatch(bracket, 1, 1, { team1: "ZTV 18 Meyer", team2: "Bonneville", score1: "11", score2: "12", seed1: 4, seed2: 5, winner: 2 });
+// bracket = updateMatch(bracket, 2, 0, { team1: "Show Muzzy", team2: "Bonneville", score1: "8", score2: "11", seed1: 1, seed2: 5, winner: 2 });
 
+// This method creates the HTML code according to the bracket array
 const renderBracket = (bracket: any[]) => {
   return (
     <div className="theme theme-dark">
       <div className="bracket disable-image">
       {/* Loop over each round */}
       {bracket.map((round, roundIndex) => (
-        <div className={`column ${roundIndex === 0 ? 'one' : roundIndex === 1 ? 'two' : 'three'}`}>
+        <div key={roundIndex} className={`column ${roundIndex === 0 ? 'one' : roundIndex === 1 ? 'two' : 'three'}`}>
           {/* Loop over each match */}
-          {round.map((match: MatchObj) => (
+          {round.map((match: MatchObj, matchIndex: number) => (
            
-            <div className={`match winner-${match?.winner===1 ? 'top' : 'bottom'}`}>
+            <div key={matchIndex} className={`match winner-${match?.winner===1 ? 'top' : match?.winner===2 ? `bottom` : ''}`}>
               {renderBracketMatchHtml(match, 1)}
               {renderBracketMatchHtml(match, 2)}
             
@@ -75,6 +77,7 @@ const renderBracket = (bracket: any[]) => {
   );
 };
 
+// This is the individual team html
 const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number) => {
   return (
   <div className={`match-${(team===1) ? 'top' : 'bottom' } team`}>
@@ -86,29 +89,79 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number) => {
   )
 };
 
+  // const fetchTournament = (id: string) => { 
+  //   return client.models.Tournament.get(
+  //     { id: id },
+  //     { selectionSet: ["id", "name",
+  //        "matches.*",
+  //        "matches.team1.*",
+  //        "matches.team2.*",
+  //        "matches.winningTeam.*",
+  //        "matches.nextMatch.*"
+  //       ] },
+
+  //   );
+  // }
+
+
 const ViewBrackets: React.FC = () => {
   const [tournament, setTournament] = useState<Tournament>();
-  const [matches, setMatches] = useState<Match[]>([]);
+  // const [matches, setMatches] = useState<Match[]>([]);
+  const [bracket2, setBracket] = useState<Bracket>(createBracket());
 
+  const setTournamentData = async (id: string) => { 
+    console.log('setTournamentData')
+    const tournamentDbData = await client.models.Tournament.get(
+      { id: id },
+      { selectionSet: ["id", "name",
+         "matches.*",
+         "matches.team1.*",
+         "matches.team2.*",
+         "matches.winningTeam.*",
+         "matches.nextMatch.*"
+        ] },
 
+    );
+
+    if (tournamentDbData.data && tournamentDbData.data.matches)
+      {
+        tournamentDbData.data.matches.forEach((match) => 
+        {  
+          //console.log('match', match);
+          const formatScore = (score: number | null) => (score?.toString() === '0' ? '' : score?.toString() ?? '');
+
+          // Now set the bracket array for this match
+          bracket = updateMatch(bracket, match.round, match.matchNumber-1, { 
+            team1: match.team1?.name, 
+            team2: match.team2?.name,
+            team1id: match.team1?.id,
+            team2id: match.team2?.id, 
+            score1: formatScore(match.team1Score), 
+            score2: formatScore(match.team2Score), 
+            seed1: formatScore(match.team1?.rank), 
+            seed2: formatScore(match.team2?.rank), 
+            winner: match.winningTeam ? (match.team1.id === match.winningTeam.id ? 1 : 2) : 0 });
+        })
+  
+      }
+      setBracket(bracket);
+  }
   // This is where it loads the bracket data
   useEffect(() => {
     const fetchData = async () => {
       // Get the tournament
       const tournaments = await client.models.Tournament.list();
       const tournament = tournaments?.data[0];
-      console.log('tournaments', tournament);
+      //console.log('tournaments', tournament);
       setTournament(tournament); // We just want the first one for now.
       
-      // Get the matches
-      // const { data: r1m1 } = await client.models.Match.get({ tournamentId: tournament.id });
-  
-      const { data: matches, errors } = await client.models.Match.listMatchByTournamentId({
-        tournamentId: tournament.id,
-      });
-      setMatches(matches)
-      console.log('Matches', matches, errors);
-      bracket = updateMatch(bracket, 1, 0, { team1: "asdf Muzzy", team2: "Rise", score1: "14", score2: "10", seed1: 1, seed2: 8, winner: 1 });
+      // Get the tournament data and set the bracket array with the data.
+      //const tournamentDbData = await fetchTournament(tournament.id);
+      //console.log('tournamentData', tournamentDbData);
+
+      setTournamentData(tournament.id);
+      //console.log(bracket);
+
     };
     
     fetchData();
@@ -119,13 +172,13 @@ const ViewBrackets: React.FC = () => {
   return (
 
     <div>
-       
         {tournament ? (<h1>{tournament.name}</h1>) : (<p>Loading tournament...</p>)}
      
-        {/* <h1>GOLD BRACKET CHAMPIONSHIP</h1> */}
         {/* This is the code to generate it from the database */}
-        {renderBracket(bracket)}
+        {renderBracket(bracket2)}
 
+
+<h1>GOLD BRACKET CHAMPIONSHIP</h1>
 {/* This is the original code below */}
 
         <div className="theme theme-dark">
