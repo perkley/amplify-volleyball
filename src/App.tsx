@@ -64,7 +64,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<PoolGroup user={user} isAdmin={isAdmin} />} />
               <Route path="/edit/:id" element={<EditPool />} />
-              <Route path="/brackets/" element={<ViewBrackets />} />
+              <Route path="/brackets/" element={<ViewBrackets isAdmin={isAdmin} />} />
             </Routes>
           </main>
         </Router>

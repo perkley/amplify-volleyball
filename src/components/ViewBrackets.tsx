@@ -6,6 +6,10 @@ import type { Schema } from "../../amplify/data/resource";
 const client = generateClient<Schema>();
 type Tournament = Schema['Tournament']['type'];
 
+interface ViewbracketsProps {
+  isAdmin: boolean;
+}
+
 // This is the match object
 type MatchObj = {
   team1: string;
@@ -47,7 +51,7 @@ let bracket: Bracket = createBracket();
 // bracket = updateMatch(bracket, 2, 0, { team1: "Show Muzzy", team2: "Bonneville", score1: "8", score2: "11", seed1: 1, seed2: 5, winner: 2 });
 
 // This method creates the HTML code according to the bracket array
-const renderBracket = (bracket: any[]) => {
+const renderBracket = (bracket: any[], isAdmin: boolean) => {
   return (
     <div className="theme theme-dark">
       <div className="bracket disable-image">
@@ -58,8 +62,8 @@ const renderBracket = (bracket: any[]) => {
           {round.map((match: MatchObj, matchIndex: number) => (
            
             <div key={matchIndex} className={`match winner-${match?.winner===1 ? 'top' : match?.winner===2 ? `bottom` : ''}`}>
-              {renderBracketMatchHtml(match, 1)}
-              {renderBracketMatchHtml(match, 2)}
+              {renderBracketMatchHtml(match, 1, isAdmin)}
+              {renderBracketMatchHtml(match, 2, isAdmin)}
             
               <div className="match-lines">
                     <div className="line one"></div>
@@ -78,9 +82,12 @@ const renderBracket = (bracket: any[]) => {
 };
 
 // This is the individual team html
-const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number) => {
+const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: boolean) => {
   return (
   <div className={`match-${(team===1) ? 'top' : 'bottom' } team`}>
+    {isAdmin && (
+      <span>+</span>
+    )}
     <span className="image"></span>
     <span className="seed">{(team === 1) ? bracketMatch?.seed1 : bracketMatch?.seed2}</span>
     <span className="name">{(team === 1) ? bracketMatch?.team1 : bracketMatch?.team2}</span>
@@ -104,7 +111,7 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number) => {
   // }
 
 
-const ViewBrackets: React.FC = () => {
+const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
   const [tournament, setTournament] = useState<Tournament>();
   // const [matches, setMatches] = useState<Match[]>([]);
   const [bracket2, setBracket] = useState<Bracket>(createBracket());
@@ -175,7 +182,7 @@ const ViewBrackets: React.FC = () => {
         {tournament ? (<h1>{tournament.name}</h1>) : (<p>Loading tournament...</p>)}
      
         {/* This is the code to generate it from the database */}
-        {renderBracket(bracket2)}
+        {renderBracket(bracket2, isAdmin)}
 
 
 <h1>GOLD BRACKET CHAMPIONSHIP</h1>
