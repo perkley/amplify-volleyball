@@ -12,7 +12,7 @@ const client = generateClient<Schema>();
 type Pool = Schema['Pool']['type'];
 
 interface HomeProps {
-  user: any;
+  user: any; // Why is the user datatype any?
   isAdmin: boolean;
 }
 
@@ -26,7 +26,8 @@ const poolGroupId = generateUniqueId(); // You'll need to implement this functio
 
 export const seedPoolGroupData = async () => {
   try {
-   
+
+
   // Create a new PoolGroup
       const newPoolGroup = await client.models.PoolGroup.create({
           poolGroupId: generateUniqueId(),
@@ -197,3 +198,32 @@ const Home: React.FC<HomeProps> = ({isAdmin}) => {
 }
 
 export default Home;
+useEffect(() => {
+
+    const fetchData = client.models.Tournament.observeQuery().subscribe ({
+        next: ({items}) => {
+            // Get the tournament
+            // const tournaments = await client.models.Tournament.list();
+            // items.map((tournament: Tournament) =>{
+            //   return tournament;
+            // })
+            const tournament = items[0];
+            //console.log('tournaments', tournament);
+            setTournament(tournament); // We just want the first one for now.
+
+            // Get the tournament data and set the bracket array with the data.
+            //const tournamentDbData = await fetchTournament(tournament.id);
+            //console.log('tournamentData', tournamentDbData);
+
+            setTournamentData(tournament.id);
+            setTournamentMatches();
+            //console.log(bracket);
+
+        }
+    });
+    return () =>{
+        fetchData.unsubscribe();
+    }
+    //
+    // fetchData();
+}, []);

@@ -100,21 +100,22 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
 
 const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: boolean) => {
   return (
-    <div className={`match-${(team === 1) ? 'top' : 'bottom' } team`}>
-      {isAdmin && (
+    <div className={`match-${(team === 1 ) ? 'top' : 'bottom' } team`}>
+      {isAdmin && (team === 1 ? !bracketMatch?.team1 : !bracketMatch?.team2) &&(
     
           <span className='plus'>+</span>
         
+      )}
+      {isAdmin && (team === 1 ? bracketMatch?.team1 : bracketMatch?.team2) && (
+
+          <span className='minus'> <a href="#" onClick={(e) => {
+            e.preventDefault(); deleteTeam(bracketMatch?.matchid, (team===1) ); }}> - </a></span>
+
       )}
       <span className="image"></span>
       <span className="seed">{(team === 1) ? bracketMatch?.seed1 : bracketMatch?.seed2}</span>
       <span className="name">{(team === 1) ? bracketMatch?.team1 : bracketMatch?.team2}</span>
       <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
-      {isAdmin && (  
-          
-          <span className='minus'> <a className='minus' href="#" onClick={(e) => { e.preventDefault(); deleteTeam(bracketMatch?.matchid, (team===1) ); }}> - </a></span>
-        
-      )}
     </div>
   );
 };
@@ -135,6 +136,7 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
       }
 
     {/* client.models.Match.delete({ id }, { authMode: 'userPool' }); */}
+      setTimeout(function() {   window.location.reload(); }, 1000);
   }}
 
 
@@ -176,7 +178,7 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
             score2: formatScore(match.team2Score), 
             seed1: formatScore(match.team1?.rank), 
             seed2: formatScore(match.team2?.rank), 
-            winner: match.winningTeam ? (match.team1.id === match.winningTeam.id ? 1 : 2) : 0 });
+            winner: match.winningTeam ? (match.team1?.id === match.winningTeam?.id ? 1 : 2) : 0 });
         })
   
       }
@@ -190,7 +192,7 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
       const tournament = tournaments?.data[0];
       //console.log('tournaments', tournament);
       setTournament(tournament); // We just want the first one for now.
-      
+
       // Get the tournament data and set the bracket array with the data.
       //const tournamentDbData = await fetchTournament(tournament.id);
       //console.log('tournamentData', tournamentDbData);
@@ -199,12 +201,12 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
       //console.log(bracket);
 
     };
-    
+
     fetchData();
   }, []);
 
-  
- 
+
+
 
 
 
