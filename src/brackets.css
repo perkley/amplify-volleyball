@@ -70,11 +70,13 @@
   .plus{
     color:gold;
     font-size: 15px;
+    cursor: pointer;
   }
 .minus{
   color:red;
   /* color:white; */
   font-size: 15px;
+  cursor: pointer;
  
 }
 
