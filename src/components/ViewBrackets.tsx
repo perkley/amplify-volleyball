@@ -112,7 +112,7 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
       <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
       {isAdmin && (  
           
-          <span className='minus'> <a href="#" onClick={(e) => { e.preventDefault(); deleteTeam(bracketMatch?.matchid, (team===1) ); }}> - </a></span>
+          <span className='minus'> <a className='minus' href="#" onClick={(e) => { e.preventDefault(); deleteTeam(bracketMatch?.matchid, (team===1) ); }}> - </a></span>
         
       )}
     </div>
