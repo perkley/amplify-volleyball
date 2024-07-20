@@ -66,6 +66,19 @@
     background: red;
     position: absolute;
   }
+
+  .plus{
+    color:gold;
+    font-size: 15px;
+  }
+.minus{
+  color:red;
+  /* color:white; */
+  font-size: 15px;
+ 
+}
+
+
   .match-lines .line.one {
     height: 1px;
     width: 12px;

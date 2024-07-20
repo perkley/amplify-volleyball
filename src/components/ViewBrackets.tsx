@@ -12,6 +12,7 @@ interface ViewbracketsProps {
 
 // This is the match object
 type MatchObj = {
+  matchid: string;
   team1: string;
   team1id: string;
   team2id: string;
@@ -82,6 +83,7 @@ const renderBracket = (bracket: any[], isAdmin: boolean) => {
 };
 
 // This is the individual team html
+/*
 const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: boolean) => {
   return (
   <div className={`match-${(team===1) ? 'top' : 'bottom' } team`}>
@@ -94,21 +96,47 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
     <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
   </div>
   )
+}; */
+
+const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: boolean) => {
+  return (
+    <div className={`match-${(team === 1) ? 'top' : 'bottom' } team`}>
+      {isAdmin && (
+    
+          <span className='plus'>+</span>
+        
+      )}
+      <span className="image"></span>
+      <span className="seed">{(team === 1) ? bracketMatch?.seed1 : bracketMatch?.seed2}</span>
+      <span className="name">{(team === 1) ? bracketMatch?.team1 : bracketMatch?.team2}</span>
+      <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
+      {isAdmin && (  
+          
+          <span className='minus'> <a href="#" onClick={(e) => { e.preventDefault(); deleteTeam(bracketMatch?.matchid, (team===1) ); }}> - </a></span>
+        
+      )}
+    </div>
+  );
 };
 
-  // const fetchTournament = (id: string) => { 
-  //   return client.models.Tournament.get(
-  //     { id: id },
-  //     { selectionSet: ["id", "name",
-  //        "matches.*",
-  //        "matches.team1.*",
-  //        "matches.team2.*",
-  //        "matches.winningTeam.*",
-  //        "matches.nextMatch.*"
-  //       ] },
 
-  //   );
-  // }
+
+
+  const deleteTeam = (matchId: string | null | undefined, isTopTeam:boolean) => {
+    if (matchId) {
+      if (isTopTeam){
+        client.models.Match.update({ id:matchId, team1Id:null, team1Score:null }, { authMode: 'userPool' });
+
+      }
+     
+      else
+      {
+      client.models.Match.update({ id:matchId, team2Id:null, team2Score:null }, { authMode: 'userPool' });
+      }
+
+    {/* client.models.Match.delete({ id }, { authMode: 'userPool' }); */}
+  }}
+
 
 
 const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
@@ -139,6 +167,7 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
 
           // Now set the bracket array for this match
           bracket = updateMatch(bracket, match.round, match.matchNumber-1, { 
+            matchid: match.id,
             team1: match.team1?.name, 
             team2: match.team2?.name,
             team1id: match.team1?.id,
@@ -175,6 +204,10 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
   }, []);
 
   
+ 
+
+
+
 
   return (
 
