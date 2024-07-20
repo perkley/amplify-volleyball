@@ -1,4 +1,4 @@
-import { ClientVpnEndpoint } from "aws-cdk-lib/aws-ec2";
+// import { ClientVpnEndpoint } from "aws-cdk-lib/aws-ec2";
 import type { Schema } from "../../amplify/data/resource";
 import { generateClient } from 'aws-amplify/data';
 
