@@ -4,6 +4,7 @@ import { generateClient } from 'aws-amplify/api';
 import type { Schema } from "../../amplify/data/resource";
 import TeamSelectionPopup from './TeamSelectionPopup';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import EditableScore from './EditableScore';
 
 const client = generateClient<Schema>();
 type Tournament = Schema['Tournament']['type'];
@@ -36,6 +37,7 @@ type MatchObj = {
   seed1: string;
   seed2: string;
   winner: number;
+  updateScore: (team: 1 | 2, score: number) => Promise<void>;
 } | null;
 
 type Round = MatchObj[];
@@ -131,8 +133,15 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
         tournamentDbData.data.matches.forEach((match) => 
         {  
           //console.log('match', match);
-          const formatScore = (score: number | null) => (score?.toString() === '0' ? '' : score?.toString() ?? '');
+          const formatScore = (score: number | null, teamExists: boolean) => {
+            if (teamExists) {
+              return score?.toString() ?? '0';
+            }
+            return '';
+          };
 
+          let team1Exists: boolean = (match.team1 !== null);
+          let team2Exists: boolean = (match.team2 !== null);
           // Now set the bracket array for this match
           newBracket[match.round - 1][match.matchNumber - 1] = { 
             matchid: match.id,
@@ -140,11 +149,23 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
             team2: match.team2?.name,
             team1id: match.team1?.id,
             team2id: match.team2?.id, 
-            score1: formatScore(match.team1Score), 
-            score2: formatScore(match.team2Score), 
-            seed1: formatScore(match.team1?.rank), 
-            seed2: formatScore(match.team2?.rank), 
-            winner: match.winningTeam ? (match.team1?.id === match.winningTeam?.id ? 1 : 2) : 0
+            score1: formatScore(match.team1Score, team1Exists), 
+            score2: formatScore(match.team2Score, team2Exists), 
+            seed1: formatScore(match.team1?.rank, team1Exists), 
+            seed2: formatScore(match.team2?.rank, team2Exists), 
+            winner: match.winningTeam ? (match.team1?.id === match.winningTeam?.id ? 1 : 2) : 0,
+            updateScore: async (team: 1 | 2, score: number) => {
+              const updateData = team === 1 
+                ? { team1Score: score } 
+                : { team2Score: score };
+              
+              await client.models.Match.update({ 
+                id: match.id, 
+                ...updateData 
+              }, { authMode: 'userPool' });
+          
+              await refreshBracket();
+            }
           };
         })
         setBracket(newBracket);
@@ -178,8 +199,8 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
     if (selectedMatch && selectedMatch.match) {
       const { match, team } = selectedMatch;
       const updateData = team === 1 
-        ? { team1Id: selectedTeam.id } 
-        : { team2Id: selectedTeam.id };
+        ? { team1Id: selectedTeam.id, team1Score: 0 } 
+        : { team2Id: selectedTeam.id, team2Score: 0 };
       
       await client.models.Match.update({ 
         id: match.matchid, 
@@ -257,7 +278,19 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
           score2: '0',
           seed1: '',
           seed2: '',
-          winner: 0
+          winner: 0,
+          updateScore: async (team: 1 | 2, score: number) => {
+            const updateData = team === 1 
+              ? { team1Score: score } 
+              : { team2Score: score };
+            
+            await client.models.Match.update({ 
+              id: newMatch.id, 
+              ...updateData 
+            }, { authMode: 'userPool' });
+  
+            await refreshBracket();
+          }
         };
       } else {
         console.error("Failed to create new match");
@@ -288,6 +321,21 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
     return null;
   };
 
+  const handleScoreChange = async (newScore: number) => {
+    if (bracketMatch) {
+      const updateData = team === 1 
+        ? { team1Score: newScore } 
+        : { team2Score: newScore };
+      
+      await client.models.Match.update({ 
+        id: bracketMatch.matchid, 
+        ...updateData 
+      }, { authMode: 'userPool' });
+
+      await refreshBracket();
+    }
+  };
+
   return (
 
     <div className={`match-${(team === 1 ) ? 'top' : 'bottom' } team`}>
@@ -303,7 +351,13 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
       <span className="image"></span>
       <span className="seed">{(team === 1) ? bracketMatch?.seed1 : bracketMatch?.seed2}</span>
       <span className="name">{(team === 1) ? bracketMatch?.team1 : bracketMatch?.team2}</span>
-      <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
+      {/* <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
+       */}
+       <EditableScore 
+        initialScore={(team === 1) ? bracketMatch?.score1 ?? '1' : bracketMatch?.score2 ?? '0'}
+        onScoreChange={handleScoreChange}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 };
