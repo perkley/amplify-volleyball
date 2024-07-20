@@ -44,38 +44,42 @@ export const seedBracketsData = async () => {
 
     // Now we need some teams
     const { data: team1 } = await client.models.Team.create({
-        name: "Show Muzzy",
+        name: "Henry's Hitters",
         rank: 1
     });
     const { data: team2 } = await client.models.Team.create({
-        name: "Rise",
+        name: "Josh's Jumpers",
         rank: 8
     });
     const { data: team3 } = await client.models.Team.create({
-        name: "ZTV 18 Meyer",
+        name: "Raphael's Rallyers",
         rank: 4
     });
     const { data: team4 } = await client.models.Team.create({
-        name: "Bonneville",
+        name: "Dillan's Diggers",
         rank: 5
     });
     const { data: team5 } = await client.models.Team.create({
-        name: "Elite Lynns",
+        name: "Caleb's Crushers",
         rank: 2
     });
     const { data: team6 } = await client.models.Team.create({
-        name: "Siva",
+        name: "Kadeen's Krusaders",
         rank: 7,
     });
     const { data: team7 } = await client.models.Team.create({
-        name: "Sun Summit",
+        name: "Martin's Mavericks",
         rank: 3,
     });
     const { data: team8 } = await client.models.Team.create({
-        name: "EIVC",
+        name: "Vance's Volleyers",
         rank: 6
     });
-    console.log('Add Teams', team1, team2, team3, team4, team5, team6, team7, team8);
+    const { data: team9 } = await client.models.Team.create({
+      name: "Douglas's Dynamos",
+      rank: 0
+  });
+    console.log('Add Teams', team1, team2, team3, team4, team5, team6, team7, team8, team9);
 
     // Create some matches
     const { data: match_r1m1 } = await client.models.Match.create({

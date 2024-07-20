@@ -187,7 +187,7 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
       //const tournamentDbData = await fetchTournament(tournament.id);
       //console.log('tournamentData', tournamentDbData);
 
-      setTournamentData(tournament.id);
+      setTournamentData(tournament?.id);
       //console.log(bracket);
 
     };
@@ -380,7 +380,7 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
       {/* <span className="score">{(team === 1) ? bracketMatch?.score1 : bracketMatch?.score2}</span>
        */}
        <EditableScore 
-        initialScore={(team === 1) ? bracketMatch?.score1 ?? '1' : bracketMatch?.score2 ?? '0'}
+        initialScore={(team === 1) ? bracketMatch?.score1 ?? '' : bracketMatch?.score2 ?? ''}
         onScoreChange={handleScoreChange}
         isAdmin={isAdmin}
       />
@@ -391,7 +391,7 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
 const confirmDelete = async () => {
   if (confirmationDialog) {
     const { matchId, isTopTeam, teamName } = confirmationDialog;
-    console.log(`Deleting team: ${teamName}`);
+    console.log(`Removing team: ${teamName}`);
     const success = await deleteTeam(matchId, isTopTeam);
     if (success) {
       await refreshBracket();
