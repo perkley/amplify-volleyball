@@ -75,9 +75,9 @@ const deleteTeam = async (matchId: string | null | undefined, isTopTeam:boolean)
   if (matchId) {
       try {
       if (isTopTeam){
-        client.models.Match.update({ id:matchId, team1Id:null, team1Score:null }, { authMode: 'userPool' });
+        client.models.Match.update({ id:matchId, team1Id:null, team1Score:null, winningTeamId:null }, { authMode: 'userPool' });
       } else {
-        client.models.Match.update({ id:matchId, team2Id:null, team2Score:null }, { authMode: 'userPool' });
+        client.models.Match.update({ id:matchId, team2Id:null, team2Score:null, winningTeamId: null }, { authMode: 'userPool' });
       }
       return true;
     } catch (error) {
@@ -155,7 +155,7 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
             seed1: formatScore(match.team1?.rank, team1Exists), 
             seed2: formatScore(match.team2?.rank, team2Exists), 
             winningTeamId: match.winningTeamId,
-            winner: match.winningTeam ? (match.team1?.id === match.winningTeam?.id ? 1 : 2) : 0,
+            winner: match.winningTeam ? (match.team1?.id === match.winningTeam?.id ? 1 : match.team2?.id === match.winningTeam?.id ? 2 : 0) : 0,
             updateScore: async (team: 1 | 2, score: number) => {
               const updateData = team === 1 
                 ? { team1Score: score } 

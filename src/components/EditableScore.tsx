@@ -61,6 +61,7 @@ const EditableScore: React.FC<EditableScoreProps> = ({ initialScore, onScoreChan
     color: 'inherit',
     font: 'inherit',
     outline: 'none',
+    cursor: 'pointer',
   };
 
   if (isEditing) {
