@@ -37,6 +37,7 @@ type MatchObj = {
   seed1: string;
   seed2: string;
   winner: number;
+  winningTeamId: string | null;
   updateScore: (team: 1 | 2, score: number) => Promise<void>;
 } | null;
 
@@ -147,12 +148,13 @@ const ViewBrackets: React.FC<ViewbracketsProps> = ({isAdmin}) => {
             matchid: match.id,
             team1: match.team1?.name, 
             team2: match.team2?.name,
-            team1id: match.team1?.id,
-            team2id: match.team2?.id, 
+            team1id: match.team1Id,
+            team2id: match.team2Id, 
             score1: formatScore(match.team1Score, team1Exists), 
             score2: formatScore(match.team2Score, team2Exists), 
             seed1: formatScore(match.team1?.rank, team1Exists), 
             seed2: formatScore(match.team2?.rank, team2Exists), 
+            winningTeamId: match.winningTeamId,
             winner: match.winningTeam ? (match.team1?.id === match.winningTeam?.id ? 1 : 2) : 0,
             updateScore: async (team: 1 | 2, score: number) => {
               const updateData = team === 1 
@@ -253,9 +255,9 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
         matchId: bracketMatch?.matchid,
         isTopTeam: team === 1,
         teamName,
-        title: "Confirm Team Deletion",
-        message: `Are you sure you want to delete '${teamName}' from this match?`,
-        confirmText: "Yes, delete",
+        title: "Confirm Team Removal",
+        message: `Are you sure you want to remove '${teamName}' from this match?`,
+        confirmText: "Yes, remove",
         cancelText: "Cancel"
       });
     }
@@ -278,6 +280,7 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
           score2: '0',
           seed1: '',
           seed2: '',
+          winningTeamId: null,
           winner: 0,
           updateScore: async (team: 1 | 2, score: number) => {
             const updateData = team === 1 
@@ -323,15 +326,38 @@ const renderBracketMatchHtml = (bracketMatch: MatchObj, team: number, isAdmin: b
 
   const handleScoreChange = async (newScore: number) => {
     if (bracketMatch) {
-      const updateData = team === 1 
-        ? { team1Score: newScore } 
-        : { team2Score: newScore };
-      
+      let updateData: any = {};
+      let winningTeamId: string | null = null;
+  
+      if (team === 1) {
+        updateData.team1Score = newScore;
+        if (newScore > parseInt(bracketMatch.score2)) {
+          winningTeamId = bracketMatch.team1id;
+        } else if (newScore < parseInt(bracketMatch.score2)) {
+          winningTeamId = bracketMatch.team2id;
+        }
+      } else {
+        updateData.team2Score = newScore;
+        if (newScore > parseInt(bracketMatch.score1)) {
+          winningTeamId = bracketMatch.team2id;
+        } else if (newScore < parseInt(bracketMatch.score1)) {
+          winningTeamId = bracketMatch.team1id;
+        }
+      }
+  
+      // If scores are equal, set winningTeamId to null
+      if (team === 1 && newScore === parseInt(bracketMatch.score2) ||
+          team === 2 && newScore === parseInt(bracketMatch.score1)) {
+        winningTeamId = null;
+      }
+  
+      updateData.winningTeamId = winningTeamId;
+  
       await client.models.Match.update({ 
         id: bracketMatch.matchid, 
         ...updateData 
       }, { authMode: 'userPool' });
-
+  
       await refreshBracket();
     }
   };

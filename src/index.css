@@ -164,13 +164,13 @@ h2 {
 }
 
 .confirmation-buttons button:first-child {
-  background-color: #d9534f;
+  background-color: #DC8C73;
   color: white;
 }
 
 .confirmation-buttons button:last-child {
-  background-color: #5bc0de;
-  color: white;
+  background-color: #45F3FA;
+  color: black;
 }
 
 

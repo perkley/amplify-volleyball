@@ -68,14 +68,14 @@
   }
 
   .plus{
-    color:gold;
+    color:#d4a21b;
     font-size: 15px;
     cursor: pointer;
     z-index: 10;
   }
 
 .minus{
-  color:red;
+  color: #d42828;
   /* color:white; */
   font-size: 15px;
   cursor: pointer;
@@ -182,5 +182,5 @@
     z-index: 10;
   }
   .score:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1) !important;
   }
