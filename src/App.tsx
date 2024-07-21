@@ -4,7 +4,7 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 // import Home, { seedPoolGroupData } from './components/Home';
 import PoolGroup from './components/PoolGroup';
-import EditPool from './components/EditPool';
+//import EditPool from './components/EditPool.tsx';
 import ViewBrackets from './components/ViewBrackets';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import AppMenu from './components/AppMenu';
@@ -101,7 +101,7 @@ const App: React.FC = () => {
             
             <Routes>
               <Route path="/" element={<PoolGroup user={user} isAdmin={isAdmin} />} />
-              <Route path="/edit/:id" element={<EditPool />} />
+              {/* <Route path="/edit/:id" element={<EditPool />} /> */}
               <Route path="/brackets/" element={<ViewBrackets isAdmin={isAdmin} />} />
             </Routes>
           </main>
