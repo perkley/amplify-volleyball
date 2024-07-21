@@ -26,7 +26,7 @@ const PoolGroup: React.FC<PoolGroupProps> = ({isAdmin}) => {
     console.log("Entered Here");
     const fetchData = async () => {
       const poolGroups = await client.models.PoolGroup.list();
-      console.log('poolGroups', poolGroups);
+      console.log('poolGroups', poolGroups, isAdmin);
       if (poolGroups.data) {
         setPoolGroups(poolGroups.data);
       }
